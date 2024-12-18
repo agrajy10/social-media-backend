@@ -19,7 +19,7 @@ model User {
   username     String   @unique
   name         String
   password     String
-  profileImage String
+  profileImage String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

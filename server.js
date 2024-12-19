@@ -32,6 +32,9 @@ const userRegisterValidator = [
     .notEmpty()
     .withMessage("Username is required")
     .bail()
+    .isLength({ min: 6 })
+    .withMessage("Username must be at least 6 characters long")
+    .bail()
     .escape()
     .custom((value) => {
       return prisma.user
@@ -45,8 +48,10 @@ const userRegisterValidator = [
   body("password")
     .notEmpty()
     .withMessage("Password is required")
+    .bail()
     .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters"),
+    .withMessage("Password must be at least 8 characters")
+    .escape(),
   body("name").notEmpty().withMessage("Name is required").escape(),
 ];
 

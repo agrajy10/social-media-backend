@@ -159,7 +159,6 @@ app.post(
   async (req, res) => {
     try {
       const { username } = req.body;
-      console.log(username);
       const user = await prisma.user.findFirst({
         where: {
           OR: [

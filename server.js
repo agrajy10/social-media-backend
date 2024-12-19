@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import e from "express";
 import helmet from "helmet";
-import { body } from "express-validator";
+import { body, oneOf } from "express-validator";
 import encryptPassword from "./utils/encrptPassword.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
@@ -58,6 +58,13 @@ const userRegisterValidator = [
 const userLoginValidator = [
   body("username").notEmpty().withMessage("Username is required").escape(),
   body("password").notEmpty().withMessage("Password is required").escape(),
+];
+
+const userNameEmailValidator = [
+  oneOf([
+    body("username").notEmpty().withMessage("Username is required").escape(),
+    body("username").isEmail().normalizeEmail().withMessage("Invalid email"),
+  ]),
 ];
 
 app.listen(process.env.PORT, () => {
@@ -138,6 +145,38 @@ app.post(
         username: user.username,
         name: user.name,
         profileImage: user.profileImage,
+      });
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  }
+);
+
+app.post(
+  "/user/check-username-email",
+  userNameEmailValidator,
+  handleValidation,
+  async (req, res) => {
+    try {
+      const { username } = req.body;
+      console.log(username);
+      const user = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { email: { contains: username, mode: "insensitive" } },
+            { username: { contains: username, mode: "insensitive" } },
+          ],
+        },
+      });
+      if (user) {
+        return res.json({
+          exists: true,
+          message: "Username or email already in use",
+        });
+      }
+      return res.json({
+        exists: false,
+        message: "Username or email is available",
       });
     } catch (error) {
       return res.status(500).json({ message: error.message });

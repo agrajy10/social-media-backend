@@ -7,12 +7,14 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import handleValidation from "./middleware/handleValidation.js";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 const app = e();
 const prisma = new PrismaClient();
 
 app.use(e.json());
 app.use(helmet());
+app.use(cookieParser());
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -127,11 +129,16 @@ app.post(
         },
       });
       if (!user) {
-        return res.status(401).json({ message: "Invalid credentials" });
+        return res
+          .status(401)
+          .json({ status: "error", message: "Invalid credentials" });
       }
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
-        return res.status(401).json({ message: "Invalid credentials" });
+        return res.status(401).json({
+          status: "error",
+          message: "Invalid credentials",
+        });
       }
 
       const token = jwt.sign(
@@ -142,8 +149,6 @@ app.post(
 
       res.cookie("token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
         maxAge: 24 * 60 * 60 * 1000,
       });
 

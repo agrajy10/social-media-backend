@@ -91,10 +91,14 @@ app.post(
       });
 
       return res.json({
-        email: user.email,
-        username: user.username,
-        name: user.name,
-        profileImage: user.profileImage,
+        status: "success",
+        message: "User registered successfully",
+        data: {
+          email: user.email,
+          username: user.username,
+          name: user.name,
+          profileImage: user.profileImage,
+        },
       });
     } catch (error) {
       return res.status(500).json({ message: error.message });
@@ -144,10 +148,14 @@ app.post(
       });
 
       return res.json({
-        email: user.email,
-        username: user.username,
-        name: user.name,
-        profileImage: user.profileImage,
+        status: "success",
+        message: "User logged in successfully",
+        data: {
+          email: user.email,
+          username: user.username,
+          name: user.name,
+          profileImage: user.profileImage,
+        },
       });
     } catch (error) {
       return res.status(500).json({ message: error.message });
@@ -184,7 +192,7 @@ app.post(
         message: "Email is available",
       });
     } catch (error) {
-      return res.status(500).json({ message: error.message });
+      return res.status(500).json({ status: "error", message: error.message });
     }
   }
 );
@@ -207,16 +215,18 @@ app.post(
       });
       if (user) {
         return res.status(409).json({
+          status: "error",
           exists: true,
           message: "Username already in use",
         });
       }
       return res.json({
+        status: "success",
         exists: false,
         message: "Username is available",
       });
     } catch (error) {
-      return res.status(500).json({ message: error.message });
+      return res.status(500).json({ status: "error", message: error.message });
     }
   }
 );

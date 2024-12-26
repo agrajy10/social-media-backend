@@ -68,13 +68,6 @@ const userLoginValidator = [
   body("password").notEmpty().withMessage("Password is required").escape(),
 ];
 
-const userNameEmailValidator = [
-  oneOf([
-    body("username").notEmpty().withMessage("Username is required").escape(),
-    body("username").isEmail().normalizeEmail().withMessage("Invalid email"),
-  ]),
-];
-
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
@@ -161,29 +154,64 @@ app.post(
 );
 
 app.post(
-  "/user/check-username-email",
-  userNameEmailValidator,
+  "/user/check-email",
+  body("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .bail()
+    .isEmail()
+    .withMessage("Invalid email")
+    .normalizeEmail(),
+  handleValidation,
+  async (req, res) => {
+    try {
+      const { email } = req.body;
+      const user = await prisma.user.findFirst({
+        where: {
+          email: { contains: email, mode: "insensitive" },
+        },
+      });
+      if (user) {
+        return res.status(409).json({
+          exists: true,
+          message: "Email already in use",
+        });
+      }
+      return res.json({
+        exists: false,
+        message: "Email is available",
+      });
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  }
+);
+
+app.post(
+  "/user/check-username",
+  body("username")
+    .notEmpty()
+    .withMessage("Username is required")
+    .trim()
+    .escape(),
   handleValidation,
   async (req, res) => {
     try {
       const { username } = req.body;
       const user = await prisma.user.findFirst({
         where: {
-          OR: [
-            { email: { contains: username, mode: "insensitive" } },
-            { username: { contains: username, mode: "insensitive" } },
-          ],
+          username: { contains: username, mode: "insensitive" },
         },
       });
       if (user) {
         return res.status(409).json({
           exists: true,
-          message: "Username or email already in use",
+          message: "Username already in use",
         });
       }
       return res.json({
         exists: false,
-        message: "Username or email is available",
+        message: "Username is available",
       });
     } catch (error) {
       return res.status(500).json({ message: error.message });

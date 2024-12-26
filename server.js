@@ -6,12 +6,20 @@ import encryptPassword from "./utils/encrptPassword.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import handleValidation from "./middleware/handleValidation.js";
+import cors from "cors";
 
 const app = e();
 const prisma = new PrismaClient();
 
 app.use(e.json());
 app.use(helmet());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+    optionsSuccessStatus: 200,
+  })
+);
 
 const userRegisterValidator = [
   body("email")
@@ -168,7 +176,7 @@ app.post(
         },
       });
       if (user) {
-        return res.json({
+        return res.status(409).json({
           exists: true,
           message: "Username or email already in use",
         });

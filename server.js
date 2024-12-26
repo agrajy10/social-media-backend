@@ -49,7 +49,9 @@ const userRegisterValidator = [
         .findUnique({ where: { username: value } })
         .then((user) => {
           if (user) {
-            return Promise.reject("Username already in use");
+            return Promise.reject(
+              "An account with this username already exists"
+            );
           }
         });
     }),

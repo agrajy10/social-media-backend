@@ -177,11 +177,6 @@ app.post(
         { expiresIn: "1d" }
       );
 
-      res.cookie("token", token, {
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000,
-      });
-
       return res.json({
         status: "success",
         message: "User logged in successfully",
@@ -190,6 +185,8 @@ app.post(
           username: user.username,
           name: user.name,
           profileImage: user.profileImage,
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+          token,
         },
       });
     } catch (error) {

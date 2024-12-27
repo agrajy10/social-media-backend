@@ -10,6 +10,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import axios from "axios";
 import generateResetToken from "./utils/generateResetToken.js";
+import crypto from "crypto";
 
 const app = e();
 const prisma = new PrismaClient();
@@ -89,6 +90,16 @@ const forgotPasswordValidator = [
           }
         });
     }),
+];
+
+const resetPasswordValidator = [
+  body("token").notEmpty().withMessage("Token is required").escape(),
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters")
+    .escape(),
 ];
 
 app.listen(process.env.PORT, () => {
@@ -214,6 +225,59 @@ app.post(
       return res.json({
         status: "success",
         message: "Reset password link sent to your email",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: "error",
+        message: error.message,
+      });
+    }
+  }
+);
+
+app.post(
+  "/user/reset-password",
+  resetPasswordValidator,
+  handleValidation,
+  async (req, res) => {
+    try {
+      const { token, password } = req.body;
+      const hashedToken = crypto
+        .createHash("sha256")
+        .update(token)
+        .digest("hex");
+      const hashedPassword = await encryptPassword(password);
+      const user = await prisma.user.findFirst({
+        where: {
+          AND: [
+            { resetToken: hashedToken },
+            {
+              resetTokenExpiresAt: {
+                gt: new Date(),
+              },
+            },
+          ],
+        },
+      });
+      if (!user) {
+        return res.status(400).json({
+          status: "error",
+          message: "Invalid or expired token",
+        });
+      }
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          password: hashedPassword,
+          resetToken: null,
+          resetTokenExpiresAt: null,
+        },
+      });
+      return res.json({
+        status: "success",
+        message: "Password reset successfully",
       });
     } catch (error) {
       return res.status(500).json({

@@ -273,6 +273,7 @@ app.post(
           password: hashedPassword,
           resetToken: null,
           resetTokenExpiresAt: null,
+          updatedAt: new Date(),
         },
       });
       return res.json({

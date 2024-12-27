@@ -11,6 +11,7 @@ import cookieParser from "cookie-parser";
 import axios from "axios";
 import generateResetToken from "./utils/generateResetToken.js";
 import crypto from "crypto";
+import handleAuthentication from "./middleware/handleAuthentication.js";
 
 const app = e();
 const prisma = new PrismaClient();
@@ -99,6 +100,21 @@ const resetPasswordValidator = [
     .withMessage("Password is required")
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters")
+    .escape(),
+];
+
+const changePasswordValidator = [
+  body("current_password")
+    .notEmpty()
+    .withMessage("Current password is required")
+    .bail()
+    .escape(),
+  body("new_password")
+    .notEmpty()
+    .withMessage("New password is required")
+    .bail()
+    .isLength({ min: 8 })
+    .withMessage("New password must be at least 8 characters")
     .escape(),
 ];
 
@@ -276,6 +292,58 @@ app.post(
       return res.json({
         status: "success",
         message: "Password reset successfully",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: "error",
+        message: error.message,
+      });
+    }
+  }
+);
+
+app.post(
+  "/user/change-password",
+  handleAuthentication,
+  changePasswordValidator,
+  handleValidation,
+  async (req, res) => {
+    try {
+      const { current_password, new_password } = req.body;
+      const user = await prisma.user.findUnique({
+        where: {
+          id: req.user.id,
+        },
+      });
+      if (!user) {
+        return res.status(401).json({
+          status: "error",
+          message: "User not found",
+        });
+      }
+      const isPasswordValid = await bcrypt.compare(
+        current_password,
+        user.password
+      );
+      if (!isPasswordValid) {
+        return res.status(401).json({
+          status: "error",
+          message: "Current password is incorrect",
+        });
+      }
+      const hashedPassword = await encryptPassword(new_password);
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          password: hashedPassword,
+          updatedAt: new Date(),
+        },
+      });
+      return res.json({
+        status: "success",
+        message: "Password changed successfully",
       });
     } catch (error) {
       return res.status(500).json({

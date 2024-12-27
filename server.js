@@ -8,6 +8,8 @@ import bcrypt from "bcrypt";
 import handleValidation from "./middleware/handleValidation.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import axios from "axios";
+import generateResetToken from "./utils/generateResetToken.js";
 
 const app = e();
 const prisma = new PrismaClient();
@@ -70,6 +72,23 @@ const userRegisterValidator = [
 const userLoginValidator = [
   body("username").notEmpty().withMessage("Username is required").escape(),
   body("password").notEmpty().withMessage("Password is required").escape(),
+];
+
+const forgotPasswordValidator = [
+  body("email")
+    .isEmail()
+    .withMessage("Invalid email")
+    .bail()
+    .normalizeEmail()
+    .custom((value) => {
+      return prisma.user
+        .findUnique({ where: { email: value } })
+        .then((user) => {
+          if (!user) {
+            return Promise.reject("No account with this email exists");
+          }
+        });
+    }),
 ];
 
 app.listen(process.env.PORT, () => {
@@ -164,6 +183,43 @@ app.post(
       });
     } catch (error) {
       return res.status(500).json({ message: error.message });
+    }
+  }
+);
+
+app.post(
+  "/user/forgot-password",
+  forgotPasswordValidator,
+  handleValidation,
+  async (req, res) => {
+    try {
+      const { email } = req.body;
+      const { token, hashedToken } = generateResetToken();
+
+      await prisma.user.update({
+        where: {
+          email: email,
+        },
+        data: {
+          resetToken: hashedToken,
+          resetTokenExpiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+        },
+      });
+
+      await axios.post(process.env.SEND_RESET_PASSWORD_EMAIL_URL, {
+        email,
+        token,
+      });
+
+      return res.json({
+        status: "success",
+        message: "Reset password link sent to your email",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: "error",
+        message: error.message,
+      });
     }
   }
 );

@@ -302,7 +302,7 @@ app.post(
   }
 );
 
-app.post(
+app.put(
   "/user/change-password",
   handleAuthentication,
   changePasswordValidator,

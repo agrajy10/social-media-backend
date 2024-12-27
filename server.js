@@ -353,3 +353,36 @@ app.put(
     }
   }
 );
+
+app.get("/user/profile", handleAuthentication, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: req.user.id,
+      },
+    });
+    if (!user) {
+      return res.status(401).json({
+        status: "error",
+        message: "User not found",
+      });
+    }
+    return res.json({
+      status: "success",
+      data: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        name: user.name,
+        profileImage: user.profileImage,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+});

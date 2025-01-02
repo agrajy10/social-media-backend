@@ -230,7 +230,7 @@ app.post(
         },
       });
 
-      await axios.post(process.env.SEND_RESET_PASSWORD_EMAIL_URL, {
+      await axios.post(`${process.env.SM_AWS_API_URL}/send-reset-password`, {
         email,
         token,
       });

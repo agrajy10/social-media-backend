@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "totalPosts" INTEGER NOT NULL DEFAULT 0;

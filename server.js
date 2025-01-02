@@ -118,6 +118,23 @@ const changePasswordValidator = [
     .escape(),
 ];
 
+const isBase64WithMimeType = (value) => {
+  const regex =
+    /^data:[a-zA-Z0-9/+]*;base64,(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+  return regex.test(value);
+};
+
+const uploadProfileImageValidator = [
+  body("profile_image").custom((value) => {
+    if (!isBase64WithMimeType(value)) {
+      return Promise.reject(
+        "Profile image must be a base64 string with mime type"
+      );
+    }
+    return Promise.resolve();
+  }),
+];
+
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
@@ -386,3 +403,57 @@ app.get("/user/profile", handleAuthentication, async (req, res) => {
     });
   }
 });
+
+app.put(
+  "/user/upload-profile-image",
+  handleAuthentication,
+  uploadProfileImageValidator,
+  handleValidation,
+  async (req, res) => {
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+          id: req.user.id,
+        },
+      });
+      if (!user) {
+        return res.status(401).json({
+          status: "error",
+          message: "User not found",
+        });
+      }
+      const uploadedProfileImage = await axios.post(
+        `${process.env.SM_AWS_API_URL}/upload-profile-image`,
+        {
+          image: req.body.profile_image,
+        }
+      );
+      const updatedUser = await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          profileImage: uploadedProfileImage.data.url,
+          updatedAt: new Date(),
+        },
+      });
+      return res.json({
+        status: "success",
+        data: {
+          id: updatedUser.id,
+          email: updatedUser.email,
+          username: updatedUser.username,
+          name: updatedUser.name,
+          profileImage: updatedUser.profileImage,
+          createdAt: updatedUser.createdAt,
+          updatedAt: updatedUser.updatedAt,
+        },
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: "error",
+        message: error.message,
+      });
+    }
+  }
+);

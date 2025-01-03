@@ -4,6 +4,7 @@ import helmet from "helmet";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import users from "./routes/users.js";
+import posts from "./routes/posts.js";
 
 const app = e();
 export const prisma = new PrismaClient();
@@ -19,5 +20,6 @@ app.use(
   })
 );
 app.use("/users", users);
+app.use("/posts", posts);
 
 export default app;

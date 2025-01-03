@@ -47,3 +47,30 @@ export const createPost = async (req, res) => {
     return res.status(500).json({ status: "error", message: error.message });
   }
 };
+
+export const updatePost = async (req, res) => {
+  try {
+    const { title, content } = req.body;
+    const sanitizedTitle = sanitizeHtml(title);
+    const sanitizedContent = sanitizeHtml(content);
+
+    const post = await prisma.post.update({
+      where: {
+        id: parseInt(req.params.id),
+        authorId: req.user.id,
+      },
+      data: {
+        title: sanitizedTitle,
+        content: sanitizedContent,
+      },
+    });
+
+    return res.json({
+      status: "success",
+      message: "Post updated successfully",
+      data: post,
+    });
+  } catch (error) {
+    return res.status(500).json({ status: "error", message: error.message });
+  }
+};

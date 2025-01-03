@@ -1,9 +1,15 @@
 import { Router } from "express";
 import handleAuthentication from "../middleware/handleAuthentication.js";
-import { createPost, getPosts, updatePost } from "../controllers/posts.js";
+import {
+  createPost,
+  getPosts,
+  updatePost,
+  deletePost,
+} from "../controllers/posts.js";
 import {
   createPostValidator,
   updatePostValidator,
+  deletePostValidator,
 } from "../validators/posts.js";
 import handleValidation from "../middleware/handleValidation.js";
 
@@ -25,6 +31,14 @@ router.put(
   updatePostValidator,
   handleValidation,
   updatePost
+);
+
+router.delete(
+  "/delete-post/:id",
+  handleAuthentication,
+  deletePostValidator,
+  handleValidation,
+  deletePost
 );
 
 export default router;

@@ -8,8 +8,8 @@ export const getPosts = async (_, res) => {
         author: {
           select: {
             id: true,
-            name: true,
-            email: true,
+            username: true,
+            profileImage: true,
           },
         },
       },

@@ -66,6 +66,15 @@ export const updatePost = async (req, res) => {
         title: sanitizedTitle,
         content: sanitizedContent,
       },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            profileImage: true,
+          },
+        },
+      },
     });
 
     return res.json({

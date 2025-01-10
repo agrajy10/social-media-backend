@@ -13,6 +13,9 @@ export const getPosts = async (_, res) => {
           },
         },
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
     return res.json({ status: "success", data: posts });
   } catch (error) {

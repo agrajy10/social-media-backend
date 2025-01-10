@@ -7,6 +7,7 @@ import {
   resetPassword,
   changePassword,
   uploadProfileImage,
+  getMyPosts,
 } from "../controllers/users.js";
 import handleAuthentication from "../middleware/handleAuthentication.js";
 import {
@@ -52,5 +53,7 @@ router.post(
   handleValidation,
   resetPassword
 );
+
+router.get("/my-posts", handleAuthentication, getMyPosts);
 
 export default router;

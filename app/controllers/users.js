@@ -289,3 +289,34 @@ export const forgotPassword = async (req, res) => {
     });
   }
 };
+
+export const getMyPosts = async (req, res) => {
+  try {
+    const posts = await prisma.post.findMany({
+      where: {
+        authorId: req.user.id,
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            profileImage: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return res.json({
+      status: "success",
+      data: posts,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};

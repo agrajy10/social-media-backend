@@ -5,6 +5,10 @@ export const createCommentValidator = [
   param("postId")
     .notEmpty()
     .withMessage("Post ID is required")
+    .bail()
+    .isNumeric()
+    .withMessage("Invalid Post ID")
+    .bail()
     .custom((value) => {
       return prisma.post
         .findUnique({ where: { id: parseInt(value) } })

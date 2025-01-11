@@ -6,6 +6,7 @@ model User {
   password            String
   profileImage        String?
   posts               Post[]
+  comments            Comment[]
   resetToken          String?
   resetTokenExpiresAt DateTime?
   createdAt           DateTime  @default(now())

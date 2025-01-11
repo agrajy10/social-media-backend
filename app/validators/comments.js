@@ -2,7 +2,7 @@ import { body, param } from "express-validator";
 import { prisma } from "../index.js";
 
 export const createCommentValidator = [
-  param("id")
+  param("postId")
     .notEmpty()
     .withMessage("Post ID is required")
     .custom((value) => {

@@ -44,7 +44,7 @@ router.delete(
 );
 
 router.post(
-  "/:id/comments",
+  "/:postId/comments",
   handleAuthentication,
   createCommentValidator,
   handleValidation,

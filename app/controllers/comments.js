@@ -16,7 +16,7 @@ export const createComment = async (req, res) => {
           },
           post: {
             connect: {
-              id: parseInt(req.params.id),
+              id: parseInt(req.params.postId),
             },
           },
         },

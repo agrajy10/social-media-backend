@@ -41,3 +41,47 @@ export const createComment = async (req, res) => {
     return res.status(500).json({ status: "error", message: error.message });
   }
 };
+
+export const createCommentReply = async (req, res) => {
+  const { content } = req.body;
+  const sanitizedContent = sanitizeHtml(content);
+  try {
+    const [createPostCommentReply] = await prisma.$transaction(
+      async (prisma) => {
+        const postComment = await prisma.comment.create({
+          data: {
+            content: sanitizedContent,
+            author: {
+              connect: {
+                id: req.user.id,
+              },
+            },
+            post: {
+              connect: {
+                id: parseInt(req.params.postId),
+              },
+            },
+          },
+        });
+
+        await prisma.commentClosure.create({
+          data: {
+            descendantId: postComment.id,
+            ancestorId: parseInt(req.params.commentId),
+            depth: postComment.id - parseInt(req.params.commentId),
+          },
+        });
+
+        return [postComment];
+      }
+    );
+
+    return res.json({
+      status: "success",
+      message: "Comment posted successfully",
+      data: createPostCommentReply,
+    });
+  } catch (error) {
+    return res.status(500).json({ status: "error", message: error.message });
+  }
+};

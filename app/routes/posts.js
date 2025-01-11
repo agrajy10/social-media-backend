@@ -12,6 +12,8 @@ import {
   deletePostValidator,
 } from "../validators/posts.js";
 import handleValidation from "../middleware/handleValidation.js";
+import { createComment } from "../controllers/comments.js";
+import { createCommentValidator } from "../validators/comments.js";
 
 const router = Router();
 
@@ -39,6 +41,14 @@ router.delete(
   deletePostValidator,
   handleValidation,
   deletePost
+);
+
+router.post(
+  "/:id/comments",
+  handleAuthentication,
+  createCommentValidator,
+  handleValidation,
+  createComment
 );
 
 export default router;

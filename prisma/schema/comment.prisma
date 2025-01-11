@@ -1,16 +1,21 @@
 model Comment {
-    id        Int      @id @default(autoincrement())
-    content   String
-    postId    Int
-    post      Post     @relation(fields: [postId], references: [id])
-    authorId  Int
-    author    User     @relation(fields: [authorId], references: [id])
-    createdAt DateTime @default(now())
+    id         Int              @id @default(autoincrement())
+    content    String
+    postId     Int
+    post       Post             @relation(fields: [postId], references: [id])
+    authorId   Int
+    author     User             @relation(fields: [authorId], references: [id])
+    createdAt  DateTime         @default(now())
+    ancestorId CommentClosure[] @relation("ancestorComment")
+    descendant CommentClosure[] @relation("descendantComment")
 }
 
 model CommentClosure {
-    id              Int @id @default(autoincrement())
-    parentCommentId Int
-    childCommentId  Int
-    depth           Int
+    ancestorId   Int
+    descendantId Int
+    depth        Int     @default(0)
+    ancestor     Comment @relation("ancestorComment", fields: [ancestorId], references: [id])
+    descendant   Comment @relation("descendantComment", fields: [descendantId], references: [id])
+
+    @@id([ancestorId, descendantId])
 }

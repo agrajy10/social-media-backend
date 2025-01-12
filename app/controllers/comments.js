@@ -64,12 +64,26 @@ export const createCommentReply = async (req, res) => {
           },
         });
 
-        await prisma.commentClosure.create({
-          data: {
+        const allAncestorsOfParentComment =
+          await prisma.commentClosure.findMany({
+            where: {
+              descendantId: parseInt(req.params.commentId),
+            },
+          });
+
+        const newRecords = allAncestorsOfParentComment.map((ancestor) => [
+          {
+            ancestorId: ancestor.ancestorId,
             descendantId: postComment.id,
-            ancestorId: parseInt(req.params.commentId),
-            depth: postComment.id - parseInt(req.params.commentId),
+            depth: ancestor.depth + 1,
           },
+        ]);
+
+        await prisma.commentClosure.createMany({
+          data: [
+            { ancestorId: postComment.id, descendantId: postComment.id },
+            ...newRecords.flat(),
+          ],
         });
 
         return [postComment];

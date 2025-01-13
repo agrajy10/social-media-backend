@@ -5,37 +5,26 @@ export const createComment = async (req, res) => {
   const { content } = req.body;
   const sanitizedContent = sanitizeHtml(content);
   try {
-    const [createPostComment] = await prisma.$transaction(async (prisma) => {
-      const postComment = await prisma.comment.create({
-        data: {
-          content: sanitizedContent,
-          author: {
-            connect: {
-              id: req.user.id,
-            },
-          },
-          post: {
-            connect: {
-              id: parseInt(req.params.postId),
-            },
+    const comment = await prisma.comment.create({
+      data: {
+        content: sanitizedContent,
+        author: {
+          connect: {
+            id: req.user.id,
           },
         },
-      });
-
-      await prisma.commentClosure.create({
-        data: {
-          descendantId: postComment.id,
-          ancestorId: postComment.id,
+        post: {
+          connect: {
+            id: parseInt(req.params.postId),
+          },
         },
-      });
-
-      return [postComment];
+      },
     });
 
     return res.json({
       status: "success",
       message: "Comment posted successfully",
-      data: createPostComment,
+      data: comment,
     });
   } catch (error) {
     return res.status(500).json({ status: "error", message: error.message });
@@ -46,54 +35,31 @@ export const createCommentReply = async (req, res) => {
   const { content } = req.body;
   const sanitizedContent = sanitizeHtml(content);
   try {
-    const [createPostCommentReply] = await prisma.$transaction(
-      async (prisma) => {
-        const postComment = await prisma.comment.create({
-          data: {
-            content: sanitizedContent,
-            author: {
-              connect: {
-                id: req.user.id,
-              },
-            },
-            post: {
-              connect: {
-                id: parseInt(req.params.postId),
-              },
-            },
+    const commentReply = await prisma.comment.create({
+      data: {
+        content: sanitizedContent,
+        author: {
+          connect: {
+            id: req.user.id,
           },
-        });
-
-        const allAncestorsOfParentComment =
-          await prisma.commentClosure.findMany({
-            where: {
-              descendantId: parseInt(req.params.commentId),
-            },
-          });
-
-        const newRecords = allAncestorsOfParentComment.map((ancestor) => [
-          {
-            ancestorId: ancestor.ancestorId,
-            descendantId: postComment.id,
-            depth: ancestor.depth + 1,
+        },
+        post: {
+          connect: {
+            id: parseInt(req.params.postId),
           },
-        ]);
-
-        await prisma.commentClosure.createMany({
-          data: [
-            { ancestorId: postComment.id, descendantId: postComment.id },
-            ...newRecords.flat(),
-          ],
-        });
-
-        return [postComment];
-      }
-    );
+        },
+        parent: {
+          connect: {
+            id: parseInt(req.params.commentId),
+          },
+        },
+      },
+    });
 
     return res.json({
       status: "success",
       message: "Comment posted successfully",
-      data: createPostCommentReply,
+      data: commentReply,
     });
   } catch (error) {
     return res.status(500).json({ status: "error", message: error.message });

@@ -12,10 +12,15 @@ import {
   deletePostValidator,
 } from "../validators/posts.js";
 import handleValidation from "../middleware/handleValidation.js";
-import { createComment, createCommentReply } from "../controllers/comments.js";
+import {
+  createComment,
+  createCommentReply,
+  getCommentReplies,
+} from "../controllers/comments.js";
 import {
   commentReplyValidator,
   createCommentValidator,
+  repliesValidator,
 } from "../validators/comments.js";
 
 const router = Router();
@@ -60,6 +65,14 @@ router.post(
   commentReplyValidator,
   handleValidation,
   createCommentReply
+);
+
+router.get(
+  "/:postId/comments/:commentId/replies",
+  handleAuthentication,
+  repliesValidator,
+  handleValidation,
+  getCommentReplies
 );
 
 export default router;

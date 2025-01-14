@@ -65,3 +65,56 @@ export const createCommentReply = async (req, res) => {
     return res.status(500).json({ status: "error", message: error.message });
   }
 };
+
+export const getCommentReplies = async (req, res) => {
+  try {
+    const replies = await prisma.$queryRaw`
+      WITH RECURSIVE
+      REPLIES AS (
+        SELECT
+          C.*
+        FROM
+          PUBLIC."Comment" AS C
+        WHERE
+          C."parentId" = ${parseInt(req.params.commentId)}
+          AND C."postId" = ${parseInt(req.params.postId)}
+        UNION ALL
+        SELECT
+          C.*
+        FROM
+          REPLIES AS R
+          JOIN PUBLIC."Comment" AS C ON R.id = C."parentId"
+      )
+      SELECT
+        MC.*,
+        U."username" as authorUsername,
+        U."profileImage" as authorProfileImage
+      FROM
+        REPLIES AS MC
+        LEFT JOIN PUBLIC."User" AS U ON MC."authorId" = U.id
+      ORDER BY
+        MC."createdAt" ASC;
+    `;
+
+    const formattedReplies = replies.map((reply) => ({
+      id: reply.id,
+      content: reply.content,
+      postId: reply.postId,
+      authorId: reply.authorId,
+      parentId: reply.parentId ? reply.parentId : null,
+      createdAt: reply.createdAt,
+      author: {
+        id: reply.authorId,
+        username: reply.authorusername,
+        profileImage: reply.authorprofileimage,
+      },
+    }));
+
+    return res.json({
+      status: "success",
+      data: formattedReplies,
+    });
+  } catch (error) {
+    return res.status(500).json({ status: "error", message: error.message });
+  }
+};

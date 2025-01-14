@@ -12,6 +12,21 @@ export const getPosts = async (_, res) => {
             profileImage: true,
           },
         },
+        comments: {
+          where: {
+            parent: null,
+          },
+          include: {
+            author: {
+              select: {
+                id: true,
+                username: true,
+                profileImage: true,
+              },
+            },
+          },
+          take: 2,
+        },
       },
       orderBy: {
         createdAt: "desc",

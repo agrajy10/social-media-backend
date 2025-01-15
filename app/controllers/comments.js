@@ -76,7 +76,7 @@ export const createCommentReply = async (req, res) => {
 };
 
 export const getPostComments = async (req, res) => {
-  const limit = parseInt(req.query.limit) || 2;
+  const limit = parseInt(req.query.limit) || 5;
   const page = parseInt(req.query.page) || 1;
   try {
     const comments = await prisma.comment.findMany({

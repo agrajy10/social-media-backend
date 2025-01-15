@@ -1,9 +1,13 @@
 import sanitizeHtml from "sanitize-html";
 import { prisma } from "../index.js";
 
-export const getPosts = async (_, res) => {
+export const getPosts = async (req, res) => {
+  const limit = parseInt(req.query.limit) || 5;
+  const page = parseInt(req.query.page) || 1;
   try {
     const posts = await prisma.post.findMany({
+      skip: (page - 1) * limit,
+      take: limit,
       include: {
         author: {
           select: {
@@ -40,7 +44,12 @@ export const getPosts = async (_, res) => {
         createdAt: "desc",
       },
     });
-    return res.json({ status: "success", data: posts });
+
+    const totalPosts = await prisma.post.count();
+
+    const hasMore = (page - 1) * limit + posts.length < totalPosts;
+
+    return res.json({ status: "success", hasMore, page, data: posts });
   } catch (error) {
     return res.status(500).json({ status: "error", message: error.message });
   }

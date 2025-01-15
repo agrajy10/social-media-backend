@@ -75,6 +75,50 @@ export const createCommentReply = async (req, res) => {
   }
 };
 
+export const getPostComments = async (req, res) => {
+  const limit = parseInt(req.query.limit) || 2;
+  const page = parseInt(req.query.page) || 1;
+  try {
+    const comments = await prisma.comment.findMany({
+      skip: (page - 1) * limit,
+      take: limit,
+      where: {
+        post: {
+          id: parseInt(req.params.postId),
+        },
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            profileImage: true,
+          },
+        },
+      },
+    });
+
+    const totalComments = await prisma.comment.count({
+      where: {
+        post: {
+          id: parseInt(req.params.postId),
+        },
+      },
+    });
+
+    const hasMore = totalComments > (page - 1) * limit + comments.length;
+
+    return res.json({
+      status: "success",
+      page,
+      hasMore,
+      data: comments,
+    });
+  } catch (error) {
+    return res.status(500).json({ status: "error", message: error.message });
+  }
+};
+
 export const getCommentReplies = async (req, res) => {
   try {
     const replies = await prisma.$queryRaw`

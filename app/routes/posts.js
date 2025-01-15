@@ -16,10 +16,12 @@ import {
   createComment,
   createCommentReply,
   getCommentReplies,
+  getPostComments,
 } from "../controllers/comments.js";
 import {
   commentReplyValidator,
   createCommentValidator,
+  getPostCommentsValidator,
   repliesValidator,
 } from "../validators/comments.js";
 
@@ -65,6 +67,14 @@ router.post(
   commentReplyValidator,
   handleValidation,
   createCommentReply
+);
+
+router.get(
+  "/:postId/comments",
+  handleAuthentication,
+  getPostCommentsValidator,
+  handleValidation,
+  getPostComments
 );
 
 router.get(

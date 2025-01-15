@@ -30,6 +30,11 @@ export const getPosts = async (_, res) => {
           },
           take: 2,
         },
+        _count: {
+          select: {
+            comments: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",

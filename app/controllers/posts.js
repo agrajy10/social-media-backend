@@ -16,6 +16,9 @@ export const getPosts = async (_, res) => {
           where: {
             parent: null,
           },
+          orderBy: {
+            createdAt: "desc",
+          },
           include: {
             author: {
               select: {

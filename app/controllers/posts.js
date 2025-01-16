@@ -1,6 +1,36 @@
 import sanitizeHtml from "sanitize-html";
 import { prisma } from "../index.js";
 
+const getNestedReplies = async (commentId) => {
+  const replies = await prisma.comment.findMany({
+    where: { parentId: commentId },
+    include: {
+      replies: true,
+      author: {
+        select: {
+          id: true,
+          username: true,
+          profileImage: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  if (!replies.length) {
+    return [];
+  }
+
+  return Promise.all(
+    replies.map(async (reply) => {
+      reply.replies = await getNestedReplies(reply.id);
+      return reply;
+    })
+  );
+};
+
 export const getPosts = async (req, res) => {
   const limit = parseInt(req.query.limit) || 5;
   const page = parseInt(req.query.page) || 1;
@@ -20,9 +50,6 @@ export const getPosts = async (req, res) => {
           where: {
             parent: null,
           },
-          orderBy: {
-            createdAt: "desc",
-          },
           include: {
             author: {
               select: {
@@ -32,7 +59,10 @@ export const getPosts = async (req, res) => {
               },
             },
           },
-          take: 2,
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 5,
         },
         _count: {
           select: {
@@ -49,14 +79,29 @@ export const getPosts = async (req, res) => {
 
     const hasMore = (page - 1) * limit + posts.length < totalPosts;
 
+    let postWithAllComments = await Promise.all(
+      posts.map(async (post) => {
+        if (post.comments.length) {
+          const y = await Promise.all(
+            post.comments.map(async (comment) => {
+              comment.replies = await getNestedReplies(comment.id);
+            })
+          );
+        }
+        return post;
+      })
+    );
+
+    postWithAllComments = postWithAllComments.map((post) => ({
+      ...post,
+      hasMoreComments: post.comments.length < post._count.comments,
+    }));
+
     return res.json({
       status: "success",
       hasMore,
       page,
-      data: posts.map((post) => ({
-        ...post,
-        hasMoreComments: post.comments.length < post._count.comments,
-      })),
+      data: postWithAllComments,
     });
   } catch (error) {
     return res.status(500).json({ status: "error", message: error.message });

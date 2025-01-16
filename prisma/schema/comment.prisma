@@ -7,6 +7,6 @@ model Comment {
     author    User      @relation(fields: [authorId], references: [id])
     parentId  Int?
     parent    Comment?  @relation("CommentToReplies", fields: [parentId], references: [id])
-    children  Comment[] @relation("CommentToReplies")
+    replies   Comment[] @relation("CommentToReplies")
     createdAt DateTime  @default(now())
 }

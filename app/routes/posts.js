@@ -15,14 +15,12 @@ import handleValidation from "../middleware/handleValidation.js";
 import {
   createComment,
   createCommentReply,
-  getCommentReplies,
   getPostComments,
 } from "../controllers/comments.js";
 import {
   commentReplyValidator,
   createCommentValidator,
   getPostCommentsValidator,
-  repliesValidator,
 } from "../validators/comments.js";
 
 const router = Router();

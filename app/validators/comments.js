@@ -54,6 +54,4 @@ export const commentReplyValidator = [
   ...commentContentValidator,
 ];
 
-export const repliesValidator = [...postIdValidator, ...commentIdValidator];
-
 export const getPostCommentsValidator = [...postIdValidator];

@@ -49,7 +49,15 @@ export const getPosts = async (req, res) => {
 
     const hasMore = (page - 1) * limit + posts.length < totalPosts;
 
-    return res.json({ status: "success", hasMore, page, data: posts });
+    return res.json({
+      status: "success",
+      hasMore,
+      page,
+      data: posts.map((post) => ({
+        ...post,
+        hasMoreComments: post.comments.length < post._count.comments,
+      })),
+    });
   } catch (error) {
     return res.status(500).json({ status: "error", message: error.message });
   }

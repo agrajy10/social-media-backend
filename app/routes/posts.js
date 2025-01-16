@@ -77,12 +77,4 @@ router.get(
   getPostComments
 );
 
-router.get(
-  "/:postId/comments/:commentId/replies",
-  handleAuthentication,
-  repliesValidator,
-  handleValidation,
-  getCommentReplies
-);
-
 export default router;

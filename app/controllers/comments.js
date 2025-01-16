@@ -1,5 +1,6 @@
 import sanitizeHtml from "sanitize-html";
 import { prisma } from "../index.js";
+import { getNestedReplies } from "./posts.js";
 
 export const createComment = async (req, res) => {
   const { content } = req.body;
@@ -111,6 +112,13 @@ export const getPostComments = async (req, res) => {
       },
     });
 
+    const commentsWithAllReplies = await Promise.all(
+      comments.map(async (comment) => {
+        const replies = await getNestedReplies(comment.id);
+        return { ...comment, replies };
+      })
+    );
+
     const totalComments = await prisma.comment.count({
       where: {
         post: {
@@ -120,13 +128,14 @@ export const getPostComments = async (req, res) => {
       },
     });
 
-    const hasMore = totalComments > (page - 1) * limit + comments.length;
+    const hasMore =
+      totalComments > (page - 1) * limit + commentsWithAllReplies.length;
 
     return res.json({
       status: "success",
       page,
       hasMore,
-      data: comments,
+      data: commentsWithAllReplies,
     });
   } catch (error) {
     return res.status(500).json({ status: "error", message: error.message });

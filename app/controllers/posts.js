@@ -1,7 +1,7 @@
 import sanitizeHtml from "sanitize-html";
 import { prisma } from "../index.js";
 
-const getNestedReplies = async (commentId) => {
+export const getNestedReplies = async (commentId) => {
   const replies = await prisma.comment.findMany({
     where: { parentId: commentId },
     include: {

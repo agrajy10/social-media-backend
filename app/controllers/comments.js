@@ -63,6 +63,15 @@ export const createCommentReply = async (req, res) => {
           },
         },
       },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            profileImage: true,
+          },
+        },
+      },
     });
 
     return res.json({
@@ -86,6 +95,7 @@ export const getPostComments = async (req, res) => {
         post: {
           id: parseInt(req.params.postId),
         },
+        parentId: null,
       },
       include: {
         author: {
@@ -96,6 +106,9 @@ export const getPostComments = async (req, res) => {
           },
         },
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     const totalComments = await prisma.comment.count({
@@ -103,6 +116,7 @@ export const getPostComments = async (req, res) => {
         post: {
           id: parseInt(req.params.postId),
         },
+        parentId: null,
       },
     });
 

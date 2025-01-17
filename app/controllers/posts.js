@@ -66,7 +66,11 @@ export const getPosts = async (req, res) => {
         },
         _count: {
           select: {
-            comments: true,
+            comments: {
+              where: {
+                parent: null,
+              },
+            },
           },
         },
       },

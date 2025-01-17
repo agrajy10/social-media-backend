@@ -1,10 +1,22 @@
 model Post {
-    id        Int       @id @default(autoincrement())
+    id        Int        @id @default(autoincrement())
     title     String
     content   String
     authorId  Int
-    author    User      @relation(fields: [authorId], references: [id])
+    author    User       @relation(fields: [authorId], references: [id])
     comments  Comment[]
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @updatedAt
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
+    likes     PostLike[]
+}
+
+model PostLike {
+    id        Int      @id @default(autoincrement())
+    postId    Int
+    userId    Int
+    post      Post     @relation(fields: [postId], references: [id])
+    user      User     @relation(fields: [userId], references: [id])
+    createdAt DateTime @default(now())
+
+    @@unique([postId, userId])
 }

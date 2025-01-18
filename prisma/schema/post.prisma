@@ -11,12 +11,12 @@ model Post {
 }
 
 model PostLike {
-    id        Int      @id @default(autoincrement())
-    postId    Int
-    userId    Int
-    post      Post     @relation(fields: [postId], references: [id])
-    user      User     @relation(fields: [userId], references: [id])
-    createdAt DateTime @default(now())
+    id      Int      @id @default(autoincrement())
+    postId  Int
+    userId  Int
+    post    Post     @relation(fields: [postId], references: [id])
+    user    User     @relation(fields: [userId], references: [id])
+    likedAt DateTime @default(now())
 
     @@unique([postId, userId])
 }

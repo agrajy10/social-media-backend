@@ -5,11 +5,13 @@ import {
   getPosts,
   updatePost,
   deletePost,
+  likePost,
 } from "../controllers/posts.js";
 import {
   createPostValidator,
   updatePostValidator,
   deletePostValidator,
+  likePostValidator,
 } from "../validators/posts.js";
 import handleValidation from "../middleware/handleValidation.js";
 import {
@@ -73,6 +75,14 @@ router.get(
   getPostCommentsValidator,
   handleValidation,
   getPostComments
+);
+
+router.post(
+  "/:postId/likes",
+  handleAuthentication,
+  likePostValidator,
+  handleValidation,
+  likePost
 );
 
 export default router;

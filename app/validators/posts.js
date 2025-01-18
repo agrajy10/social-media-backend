@@ -1,4 +1,5 @@
 import { body, param } from "express-validator";
+import { postIdValidator } from "./common.js";
 
 export const createPostValidator = [
   body("title").notEmpty().withMessage("Title is required").escape(),
@@ -24,3 +25,5 @@ export const deletePostValidator = [
     .isNumeric()
     .withMessage("Invalid Post ID"),
 ];
+
+export const likePostValidator = [...postIdValidator];

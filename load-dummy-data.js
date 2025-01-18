@@ -7,7 +7,7 @@ async function generateUsers() {
 
   for (let i = 0; i < 30; i++) {
     const hashedPassword = await encryptPassword(
-      `${process.env.DEFAULT_PASSWORD}`
+      `${process.env.DEMO_USERS_PASS}`
     );
     const user = {
       email: faker.internet.email(),

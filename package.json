@@ -5,8 +5,8 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node --watch  --env-file=.env server",
-    "load-dummy-data": "node load-dummy-data.js"
+    "start": "node --watch --env-file=.env server",
+    "load-dummy-data": "node --env-file=.env load-dummy-data.js"
   },
   "author": "Agraj Yadav",
   "license": "ISC",

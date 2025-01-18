@@ -71,6 +71,7 @@ export const getPosts = async (req, res) => {
                 parent: null,
               },
             },
+            likes: true,
           },
         },
       },

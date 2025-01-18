@@ -11,7 +11,7 @@ async function generateUsers() {
     );
     const user = {
       email: faker.internet.email(),
-      username: faker.internet.username(),
+      username: faker.internet.username().toLowerCase(),
       name: faker.person.fullName(),
       password: hashedPassword,
     };

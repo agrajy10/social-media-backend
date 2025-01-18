@@ -129,6 +129,15 @@ export const createPost = async (req, res) => {
           },
         },
       },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            profileImage: true,
+          },
+        },
+      },
     });
 
     return res.json({

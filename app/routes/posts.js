@@ -6,6 +6,7 @@ import {
   updatePost,
   deletePost,
   likePost,
+  deletePostLike,
 } from "../controllers/posts.js";
 import {
   createPostValidator,
@@ -83,6 +84,14 @@ router.post(
   likePostValidator,
   handleValidation,
   likePost
+);
+
+router.delete(
+  "/:postId/likes",
+  handleAuthentication,
+  likePostValidator,
+  handleValidation,
+  deletePostLike
 );
 
 export default router;

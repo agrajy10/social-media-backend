@@ -229,3 +229,33 @@ export const likePost = async (req, res) => {
     return res.status(500).json({ status: "error", message: error.message });
   }
 };
+
+export const deletePostLike = async (req, res) => {
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.postLike.delete({
+        where: {
+          postId_userId: {
+            postId: parseInt(req.params.postId),
+            userId: req.user.id,
+          },
+        },
+      });
+
+      const likesCount = await tx.postLike.count({
+        where: {
+          id: parseInt(req.params.postId),
+        },
+      });
+
+      return likesCount;
+    });
+    return res.json({
+      status: "success",
+      message: "Post unliked successfully",
+      data: result,
+    });
+  } catch (error) {
+    return res.status(500).json({ status: "error", message: error.message });
+  }
+};

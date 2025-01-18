@@ -31,12 +31,15 @@ async function generatePosts(numberOfPosts) {
   });
 
   for (let i = 0; i < numberOfPosts; i++) {
+    const fakeDate = faker.date.past(5);
     const post = {
       title: faker.lorem.sentence(),
       content: `<p>${faker.lorem.paragraphs(
         faker.helpers.arrayElement([1, 2, 3])
       )}</p>`,
       authorId: faker.helpers.arrayElement(usersId).id,
+      createdAt: fakeDate,
+      updatedAt: fakeDate,
     };
     posts.push(post);
   }
@@ -64,4 +67,4 @@ async function loadDummyData(batchSize, numberOfPosts) {
   }
 }
 
-loadDummyData(20, 120);
+loadDummyData(20, 20);

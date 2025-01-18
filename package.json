@@ -5,7 +5,8 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node --watch  --env-file=.env server"
+    "start": "node --watch  --env-file=.env server",
+    "load-dummy-data": "node load-dummy-data.js"
   },
   "author": "Agraj Yadav",
   "license": "ISC",
@@ -23,6 +24,7 @@
     "sanitize-html": "^2.14.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.4.0",
     "prisma": "^6.1.0"
   }
 }

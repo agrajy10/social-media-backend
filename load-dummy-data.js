@@ -47,6 +47,37 @@ async function generatePosts(numberOfPosts) {
   return posts;
 }
 
+async function loadPostLikes() {
+  const postIds = await prisma.post.findMany({
+    select: {
+      id: true,
+    },
+  });
+
+  const userIds = await prisma.user.findMany({
+    select: {
+      id: true,
+    },
+  });
+
+  for (let i = 0; i < postIds.length; i++) {
+    let users = userIds.slice(
+      0,
+      Math.floor(Math.random() * (userIds.length * 0.25))
+    );
+    console.log("users", users);
+    for (let j = 0; j < users.length; j++) {
+      await prisma.postLike.create({
+        data: {
+          postId: postIds[i].id,
+          userId: users[j].id,
+          likedAt: faker.date.past(5),
+        },
+      });
+    }
+  }
+}
+
 async function loadDummyData(batchSize, numberOfPosts) {
   try {
     const users = await generateUsers();
@@ -67,4 +98,5 @@ async function loadDummyData(batchSize, numberOfPosts) {
   }
 }
 
-loadDummyData(20, 20);
+//loadDummyData(20, 20);
+loadPostLikes();

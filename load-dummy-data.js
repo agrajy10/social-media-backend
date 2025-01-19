@@ -65,7 +65,6 @@ async function loadPostLikes() {
       0,
       Math.floor(Math.random() * (userIds.length * 0.25))
     );
-    console.log("users", users);
     for (let j = 0; j < users.length; j++) {
       await prisma.postLike.create({
         data: {

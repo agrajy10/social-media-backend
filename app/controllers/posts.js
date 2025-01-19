@@ -46,6 +46,11 @@ export const getPosts = async (req, res) => {
             profileImage: true,
           },
         },
+        likes: {
+          where: {
+            userId: req.user.id,
+          },
+        },
         comments: {
           where: {
             parent: null,
@@ -87,7 +92,7 @@ export const getPosts = async (req, res) => {
     let postWithAllComments = await Promise.all(
       posts.map(async (post) => {
         if (post.comments.length) {
-          const y = await Promise.all(
+          await Promise.all(
             post.comments.map(async (comment) => {
               comment.replies = await getNestedReplies(comment.id);
             })
@@ -99,6 +104,8 @@ export const getPosts = async (req, res) => {
 
     postWithAllComments = postWithAllComments.map((post) => ({
       ...post,
+      isLiked: post.likes.length > 0,
+      likes: undefined,
       hasMoreComments: post.comments.length < post._count.comments,
     }));
 
@@ -222,9 +229,9 @@ export const likePost = async (req, res) => {
         },
       });
 
-      const likesCount = await tx.post.count({
+      const likesCount = await tx.postLike.count({
         where: {
-          id: parseInt(req.params.postId),
+          postId: parseInt(req.params.postId),
         },
       });
 

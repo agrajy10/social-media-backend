@@ -304,14 +304,31 @@ export const getMyPosts = async (req, res) => {
             profileImage: true,
           },
         },
+        likes: {
+          where: {
+            userId: req.user.id,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
       },
     });
+
+    const postWithLikes = posts.map((post) => ({
+      ...post,
+      isLiked: post.likes.length > 0,
+      likes: undefined,
+    }));
+
     return res.json({
       status: "success",
-      data: posts,
+      data: postWithLikes,
     });
   } catch (error) {
     return res.status(500).json({

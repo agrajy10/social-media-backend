@@ -261,7 +261,7 @@ export const deletePostLike = async (req, res) => {
 
       const likesCount = await tx.postLike.count({
         where: {
-          id: parseInt(req.params.postId),
+          postId: parseInt(req.params.postId),
         },
       });
 

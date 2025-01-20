@@ -9,6 +9,7 @@ import {
   uploadProfileImage,
   getMyPosts,
   followUser,
+  unfollowUser,
 } from "../controllers/users.js";
 import handleAuthentication from "../middleware/handleAuthentication.js";
 import {
@@ -62,6 +63,13 @@ router.post(
   followValidator,
   handleValidation,
   followUser
+);
+router.delete(
+  "/:userId/follow",
+  handleAuthentication,
+  followValidator,
+  handleValidation,
+  unfollowUser
 );
 
 router.get("/my-posts", handleAuthentication, getMyPosts);

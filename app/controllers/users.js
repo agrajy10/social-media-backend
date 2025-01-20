@@ -360,3 +360,37 @@ export const followUser = async (req, res) => {
     });
   }
 };
+
+export const unfollowUser = async (req, res) => {
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.follower.delete({
+        where: {
+          followerId_followingId: {
+            followerId: req.user.id,
+            followingId: parseInt(req.params.userId),
+          },
+        },
+      });
+
+      const followers = await tx.follower.count({
+        where: {
+          followerId: req.user.id,
+        },
+      });
+
+      return followers;
+    });
+
+    return res.json({
+      status: "success",
+      message: "User unfollowed successfully",
+      data: result,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};

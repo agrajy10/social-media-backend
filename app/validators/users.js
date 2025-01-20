@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 import { prisma } from "../index.js";
 
 export const userRegisterValidator = [
@@ -107,4 +107,23 @@ export const uploadProfileImageValidator = [
     }
     return Promise.resolve();
   }),
+];
+
+export const followValidator = [
+  param("userId")
+    .notEmpty()
+    .withMessage("User ID is required")
+    .bail()
+    .isNumeric()
+    .withMessage("Invalid User ID")
+    .bail()
+    .custom((value) => {
+      return prisma.user
+        .findUnique({ where: { id: parseInt(value) } })
+        .then((user) => {
+          if (!user) {
+            return Promise.reject("No account with this ID exists");
+          }
+        });
+    }),
 ];

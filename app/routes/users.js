@@ -8,10 +8,12 @@ import {
   changePassword,
   uploadProfileImage,
   getMyPosts,
+  followUser,
 } from "../controllers/users.js";
 import handleAuthentication from "../middleware/handleAuthentication.js";
 import {
   changePasswordValidator,
+  followValidator,
   forgotPasswordValidator,
   resetPasswordValidator,
   uploadProfileImageValidator,
@@ -52,6 +54,14 @@ router.post(
   resetPasswordValidator,
   handleValidation,
   resetPassword
+);
+
+router.post(
+  "/:userId/follow",
+  handleAuthentication,
+  followValidator,
+  handleValidation,
+  followUser
 );
 
 router.get("/my-posts", handleAuthentication, getMyPosts);

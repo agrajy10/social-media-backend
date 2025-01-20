@@ -320,3 +320,43 @@ export const getMyPosts = async (req, res) => {
     });
   }
 };
+
+export const followUser = async (req, res) => {
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.follower.create({
+        data: {
+          follower: {
+            connect: {
+              id: req.user.id,
+            },
+          },
+          following: {
+            connect: {
+              id: parseInt(req.params.userId),
+            },
+          },
+        },
+      });
+
+      const followers = await tx.follower.count({
+        where: {
+          followerId: req.user.id,
+        },
+      });
+
+      return followers;
+    });
+
+    return res.json({
+      status: "success",
+      message: "User followed successfully",
+      data: result,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};

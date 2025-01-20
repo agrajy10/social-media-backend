@@ -12,4 +12,17 @@ model User {
   resetTokenExpiresAt DateTime?
   createdAt           DateTime   @default(now())
   updatedAt           DateTime   @updatedAt
+  followers           Follower[] @relation("user_followers") // users following this user
+  following           Follower[] @relation("user_following") // users this user following
+}
+
+model Follower {
+  id          Int      @id @default(autoincrement())
+  followerId  Int
+  followingId Int
+  follower    User     @relation("user_followers", fields: [followerId], references: [id])
+  following   User     @relation("user_following", fields: [followingId], references: [id])
+  followedAt  DateTime @default(now())
+
+  @@unique([followerId, followingId])
 }

@@ -85,7 +85,7 @@ export const loginUser = async (req, res) => {
   }
 };
 
-export const getUserProfile = async (req, res) => {
+export const getMyProfile = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: {
@@ -108,6 +108,66 @@ export const getUserProfile = async (req, res) => {
         profileImage: user.profileImage,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+export const getUserProfile = async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        username: req.params.username,
+      },
+    });
+    if (!user) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found",
+      });
+    }
+
+    const totalPosts = await prisma.post.count({
+      where: {
+        author: {
+          id: user.id,
+        },
+      },
+    });
+
+    const followers = await prisma.follower.findMany({
+      where: {
+        following: {
+          id: user.id,
+        },
+      },
+    });
+
+    const following = await prisma.follower.count({
+      where: {
+        follower: {
+          id: user.id,
+        },
+      },
+    });
+
+    return res.json({
+      status: "success",
+      data: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        name: user.name,
+        profileImage: user.profileImage,
+        totalPosts,
+        followers: followers.length,
+        isFollowing: followers.includes(req.user.id),
+        following,
       },
     });
   } catch (error) {

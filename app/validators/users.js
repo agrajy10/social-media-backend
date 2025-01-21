@@ -127,3 +127,11 @@ export const followValidator = [
         });
     }),
 ];
+
+export const userNameValidator = [
+  param("username")
+    .notEmpty()
+    .withMessage("User name is required")
+    .bail()
+    .escape(),
+];

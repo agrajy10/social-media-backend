@@ -2,7 +2,7 @@ import { Router } from "express";
 import {
   registerUser,
   loginUser,
-  getUserProfile,
+  getMyProfile,
   forgotPassword,
   resetPassword,
   changePassword,
@@ -10,6 +10,7 @@ import {
   getMyPosts,
   followUser,
   unfollowUser,
+  getUserProfile,
 } from "../controllers/users.js";
 import handleAuthentication from "../middleware/handleAuthentication.js";
 import {
@@ -19,6 +20,7 @@ import {
   resetPasswordValidator,
   uploadProfileImageValidator,
   userLoginValidator,
+  userNameValidator,
   userRegisterValidator,
 } from "../validators/users.js";
 import handleValidation from "../middleware/handleValidation.js";
@@ -27,7 +29,13 @@ const router = Router();
 
 router.post("/register", userRegisterValidator, handleValidation, registerUser);
 router.post("/login", userLoginValidator, handleValidation, loginUser);
-router.get("/profile", handleAuthentication, getUserProfile);
+router.get("/profile", handleAuthentication, getMyProfile);
+router.get(
+  "/:username/profile",
+  handleAuthentication,
+  userNameValidator,
+  getUserProfile
+);
 router.put(
   "/upload-profile-image",
   handleAuthentication,

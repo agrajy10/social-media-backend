@@ -166,7 +166,9 @@ export const getUserProfile = async (req, res) => {
         profileImage: user.profileImage,
         totalPosts,
         followers: followers.length,
-        isFollowing: followers.includes(req.user.id),
+        isFollowing: followers
+          .map((follower) => follower.followerId)
+          .includes(req.user.id),
         following,
       },
     });

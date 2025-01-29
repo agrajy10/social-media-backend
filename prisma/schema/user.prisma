@@ -1,7 +1,7 @@
 model User {
-  id                  Int        @id @default(autoincrement())
-  email               String     @unique
-  username            String     @unique
+  id                  Int            @id @default(autoincrement())
+  email               String         @unique
+  username            String         @unique
   name                String
   password            String
   profileImage        String?
@@ -10,10 +10,11 @@ model User {
   likes               PostLike[]
   resetToken          String?
   resetTokenExpiresAt DateTime?
-  createdAt           DateTime   @default(now())
-  updatedAt           DateTime   @updatedAt
-  followers           Follower[] @relation("user_followers") // users following this user
-  following           Follower[] @relation("user_following") // users this user following
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  followers           Follower[]     @relation("user_followers") // users following this user
+  following           Follower[]     @relation("user_following") // users this user following
+  notification        Notification[]
 }
 
 model Follower {

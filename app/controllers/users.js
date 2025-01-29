@@ -418,6 +418,13 @@ export const followUser = async (req, res) => {
         },
       });
 
+      await tx.notification.create({
+        data: {
+          userId: parseInt(req.params.userId),
+          message: `${req.user.username} followed you`,
+        },
+      });
+
       const followers = await tx.follower.count({
         where: {
           followerId: req.user.id,
